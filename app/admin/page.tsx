@@ -1,0 +1,4 @@
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import AdminUsers from '@/components/AdminUsers'
+export default async function Admin(){const supabase=await createClient(); const {data:{user}}=await supabase.auth.getUser(); if(!user)redirect('/auth'); const {data:me}=await supabase.from('profiles').select('role').eq('id',user.id).single(); if(!me||!['owner','admin'].includes(me.role))redirect('/'); const {data:profiles}=await supabase.from('profiles').select('id,username,display_name,role,approval_status,can_post,created_at').order('created_at',{ascending:false}); return <main className="shell"><div className="sectionHead"><div><div className="eyebrow">Owner controls</div><h2>Admin dashboard</h2></div></div><div className="panel"><AdminUsers users={profiles||[]} currentUserId={user.id}/></div></main>}
